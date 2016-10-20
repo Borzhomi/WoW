@@ -1,0 +1,4 @@
+﻿  Game.cpp
+c:\users\администратор\documents\visual studio 2015\projects\wow\wow\game.cpp(29): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+c:\users\администратор\documents\visual studio 2015\projects\wow\wow\game.cpp(174): warning C4715: Field::loss: значение возвращается не при всех путях выполнения
+  WoW.vcxproj -> C:\Users\Администратор\documents\visual studio 2015\Projects\WoW\Debug\WoW.exe
