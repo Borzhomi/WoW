@@ -11,10 +11,18 @@
 #include "iostream"
 #include "conio.h"
 #include "time.h"
+#include "fstream"
 
 using namespace std;
 
 enum Status{live, die, wound};
+enum{LEN = 80};
+/////////////////////////////////////////////////Авторизация/////////////////////////////////////////////////
+struct APlayer
+{
+	char name[LEN];
+	int win;
+};
 ///////////////////////////////////////////////Элемент корабля///////////////////////////////////////////////
 struct Elem
 {
@@ -71,13 +79,16 @@ public:
 class Field
 {
 private:
+	APlayer player;
 	char field[YFIELD][XFIELD];                                       //Игровое поле
 	Ships *ship[AFTERDECK1 + AFTERDECK2 + AFTERDECK3 + AFTERDECK4];   //Массив кораблей
 public:
-	Field();
+	Field(char*, int);
 	void paint(int);                                                  //Вывод на экран поля: 1 - игрок, 0 - компьютер
 	bool check(int, int, Status&);                                    //Проверка попадания
+	APlayer putplayer();                                             //Получение информации об игроке
 	bool loss();                                                      //Проверка на завершение игры
+	void win();                                                       //Увеличение счетчика побед
 	~Field();
 };
 
@@ -95,12 +106,14 @@ public:
 class WoW
 {
 private:
-	Field *player;      //Игровое поле игрока
-	Field *computer;    //Игровое поле компьютера
-	II *IskIn;          //ИскИн
+	Field *player;        //Игровое поле игрока
+	Field *computer;      //Игровое поле компьютера
+	II *IskIn;            //ИскИн
 public:
 	WoW();
-	void menu();        //Главное меню
-	void run();         //Запуск игры
+	void menu();          //Главное меню
+	void run();           //Запуск игры
+	void authorisation(); //Авторизация учетной записи
+	void save();
 	~WoW();
 };

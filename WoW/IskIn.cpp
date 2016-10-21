@@ -51,7 +51,7 @@ void II::priority(int y, int x, Status st)
 			if (x) if (field[y][x - 1] == ' ') field[y][x - 1] = '-';
 			if (y < YFIELD - 1) if (field[y + 1][x] == ' ') field[y + 1][x] = '-';
 			if (x < XFIELD - 1) if (field[y][x + 1] == ' ') field[y][x + 1] = '-';
-			field[y][x] == '-';
+			field[y][x] = '-';
 			if (y) if (field[y - 1][x] == '*')
 			{
 				y--;

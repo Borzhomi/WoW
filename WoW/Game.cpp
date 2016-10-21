@@ -27,8 +27,7 @@ void WoW::menu()
 void WoW::run()
 {
 	srand(time(NULL));
-	player = new Field;
-	computer = new Field;
+	authorisation();
 	IskIn = new II;
 	int xstep, ystep;
 	Status st; //Для ИИ
@@ -37,17 +36,22 @@ void WoW::run()
 		while (true) //Ход игрока
 		{
 			system("cls");
+			cout << "\n";
 			player->paint(1);
 			cout << "\n\n";
 			computer->paint(0);
 			cout << "Ваш ход" << endl;
 			cout << "Введите координаты для выстрела: "; 
-			xstep = _getche() - 65;
+			xstep = _getche();
+			if (xstep >= 'A' && xstep <= 'Z') xstep -= 65;
+			else if (xstep >= 'a' && xstep <= 'z') xstep -= 97;
 			cin >> ystep;
 			if (!computer->check(ystep, xstep, st)) break;
 			if (computer->loss())
 			{
 				cout << "ВЫ ВЫИГРАЛИ!!!" << endl;
+				player->win();
+				save();
 				system("pause");
 				return;
 			}
@@ -55,6 +59,7 @@ void WoW::run()
 		while (true) //Ход компьютера
 		{
 			system("cls");
+			cout << "\n";
 			player->paint(1);
 			cout << "\n\n";
 			computer->paint(0);
@@ -69,13 +74,49 @@ void WoW::run()
 			}
 			if (player->loss())
 			{
-				cout << "\nВЫ ПРОИГРАЛИ!!!" << endl;
+				cout << "ВЫ ПРОИГРАЛИ!!!" << endl;
+				computer->win();
+				save();
 				system("pause");
 				return;
 			}
 			IskIn->priority(ystep, xstep, st);
 		}
 	}
+}
+void WoW::authorisation()
+{
+	APlayer tmp;
+	ifstream ifile("save.dat", ios::binary);
+	ifile.seekg(0, ios::end);
+	if (ifile.tellg() < sizeof(tmp))
+	{
+		char name[LEN];
+		system("cls");
+		cout << "Введите имя: ";
+		cin >> name;
+		player = new Field(name, 0);
+		computer = new Field("Computer", 0);
+	}
+	else
+	{
+		ifile.seekg(0);
+		ifile.read((char*)&tmp, sizeof(tmp));
+		player = new Field(tmp.name, tmp.win);
+		ifile.read((char*)&tmp, sizeof(tmp));
+		computer = new Field(tmp.name, tmp.win);
+	}
+	ifile.close();
+}
+void WoW::save()
+{
+	APlayer tmp;
+	ofstream ofile("save.dat", ios::trunc | ios::binary);
+	tmp = player->putplayer();
+	ofile.write((char*)&tmp, sizeof(tmp));
+	tmp = computer->putplayer();
+	ofile.write((char*)&tmp, sizeof(tmp));
+	ofile.close();
 }
 WoW::~WoW()
 {
@@ -86,7 +127,7 @@ WoW::~WoW()
 
 /////////////////////////////////////////////////////////////////////////////
 
-Field::Field()
+Field::Field(char* name, int win)
 {
 	for (int i = 0; i < YFIELD; i++)
 	{
@@ -116,9 +157,12 @@ Field::Field()
 		ship[i] = new Ship4(field);
 		i++;
 	}
+	strcpy_s(player.name, LEN, name);
+	player.win = win;
 }
 void Field::paint(int init)
 {
+	cout << "Игрок " << player.name << "\tПобед " << player.win << "\n\n";
 	for (int i = 0; i <= YFIELD; i++)
 	{
 		for (int j = 0; j <= XFIELD; j++)
@@ -164,13 +208,21 @@ bool Field::check(int y, int x, Status& st)
 		return true;
 	}
 }
+APlayer Field::putplayer()
+{
+	return player;
+}
 bool Field::loss()
 {
-	for (int i = 0; i < AFTERDECK1 + AFTERDECK2 + AFTERDECK3 + AFTERDECK4 - 1; i++)
+	for (int i = 0; i < AFTERDECK1 + AFTERDECK2 + AFTERDECK3 + AFTERDECK4; i++)
 	{
 		if (ship[i]->putstatus() == live) return false;
 	}
-	if (ship[AFTERDECK1 + AFTERDECK2 + AFTERDECK3 + AFTERDECK4 - 1]->putstatus() == die) return true;
+    return true;
+}
+void Field::win()
+{
+	player.win++;
 }
 Field::~Field()
 {
@@ -179,6 +231,7 @@ Field::~Field()
 		delete ship[i];
 	}
 }
+
 //////////////////////////////////////////////////////////////////////////////
 
 Ship1::Ship1(char field[][XFIELD])
